@@ -66,7 +66,7 @@ export default function App() {
   const [isLoading , setIsLoading] = useState(false);
   const [error , setError] = useState("");
 
-  const tempQuery = "inception";
+  const [selectedId , setSelectedId] = useState(null);
 
 
   // useEffect(function () {
@@ -82,6 +82,14 @@ export default function App() {
   // useEffect(function () {
   //     console.log("After query change")
   // } , [query]);
+
+    function handleSelectMovie(id){
+        setSelectedId(SelectedId => id === selectedId ? null : id);
+    }
+
+    function handleCloseMovie(){
+        setSelectedId(null);
+    }
 
 
 
@@ -102,6 +110,7 @@ export default function App() {
 
           setMovies(data.Search);
           }
+
           catch (err) {
               console.error(err.message);
               setError(err.message);
@@ -139,12 +148,17 @@ export default function App() {
 
           <Box>
               {isLoading && <Loader/>}
-              {!isLoading && !error && <MovieList movies={movies}/>}
+              {!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie}/>}
               {error && <ErrorMessage message={error}/>}
           </Box>
+
           <Box>
-              <WatchedSummary watched={watched}/>
-              <WatchedMoviesList watched={watched}/>
+              {selectedId ? (<MovieDetails selectedId={selectedId} onCloseMovie={handleCloseMovie}/>) : (
+                  <>
+                      <WatchedSummary watched={watched}/>
+                      <WatchedMoviesList watched={watched}/>
+                  </>
+              )}
           </Box>
 
         </Main>
@@ -240,20 +254,20 @@ function Box({children}) {
 
 
 
-function MovieList({movies}) {
+function MovieList({movies , onSelectMovie}) {
   return (
-      <ul className="list">
+      <ul className="list list-movies">
         {movies?.map((movie) => (
-            <Movie movie={movie} key={movie.imdbID}/>
+            <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie}/>
         ))}
       </ul>
   );
 }
 
 
-function Movie({movie}) {
+function Movie({movie , onSelectMovie}) {
   return (
-      <li key={movie.imdbID}>
+      <li key={movie.imdbID} onClick={() => onSelectMovie(movie.imdbID)}>
         <img src={movie.Poster} alt={`${movie.Title} poster`} />
         <h3>{movie.Title}</h3>
         <div>
@@ -268,8 +282,17 @@ function Movie({movie}) {
 
 
 
-function WatchedSummary({watched}) {
+function MovieDetails({selectedId  , onCloseMovie}) {
+    return (
+        <div className="details">
+            <button className="btn-back" onClick={onCloseMovie}>&larr;</button>
+            {selectedId}</div>
+    );
+}
 
+
+
+function WatchedSummary({watched}) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
   const avgRuntime = average(watched.map((movie) => movie.runtime));
