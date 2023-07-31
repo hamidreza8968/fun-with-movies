@@ -120,9 +120,9 @@ export default function App() {
                 setMovies(data.Search);
                 setError("");
             } catch (err) {
-                console.error(err.message);
 
                 if (err.name !== "AbortError"){
+                    console.log(err.message);
                     setError(err.message);
                 }
 
@@ -138,6 +138,7 @@ export default function App() {
             return
         }
 
+        handleCloseMovie()
         fetchMovies();
 
         return function () {
@@ -145,6 +146,9 @@ export default function App() {
         }
 
     }, [query]);
+
+
+
 
     return (
         <>
@@ -349,6 +353,19 @@ function MovieDetails({selectedId, onCloseMovie, onAddWatched , watched}) {
             document.title = "FunWithMovies";
         }
     } , [title]);
+
+
+    useEffect(function () {
+        function callback (e) {
+            if(e.code === "Escape"){
+                onCloseMovie();
+            }
+        }
+        document.addEventListener("keydown" , callback);
+        return function () {
+            document.removeEventListener("keydown" , callback);
+        }
+    } , [onCloseMovie]);
 
     return (
         <div className="details">
