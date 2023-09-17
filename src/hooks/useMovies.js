@@ -20,21 +20,21 @@ export function useMovies(query , callback) {
                 if (!res.ok) throw new Error("Something went wrong with fetching movies");
 
                 const data = await res.json();
-
-                if (data.Response === "False") throw new Error("Movie not found");
+                if (data.Response === "False") {
+                    setMovies([]);
+                    throw new Error("Movie not found");
+                }
 
                 setMovies(data.Search);
                 setError("");
             } catch (err) {
 
                 if (err.name !== "AbortError"){
-                    console.log(err.message);
                     setError(err.message);
                 }
 
             } finally {
                 setIsLoading(false);
-                // setError("");
             }
         }
 
@@ -44,7 +44,6 @@ export function useMovies(query , callback) {
             return
         }
 
-        // callback?.();
         fetchMovies();
 
         return function () {
