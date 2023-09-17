@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
 const key = "f9beea74";
 
-export function useMovies(query, callback) {
+export function useMovies(query , callback) {
     const [movies, setMovies] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -15,19 +15,7 @@ export function useMovies(query, callback) {
                 setIsLoading(true);
                 setError("");
 
-                const headers = new Headers();
-                headers.append("Content-Type", "application/json"); // Set the content type
-
-                const request = new Request(
-                    http://www.omdbapi.com/?apikey=${key}&s=${query},
-                {
-                    method: "GET",
-                        headers: headers,
-                    signal: controller.signal,
-                }
-            );
-
-                const res = await fetch(request);
+                const res = await fetch(`http://www.omdbapi.com/?apikey=${key}&s=${query}` , {signal:controller.signal});
 
                 if (!res.ok) throw new Error("Something went wrong with fetching movies");
 
@@ -40,9 +28,11 @@ export function useMovies(query, callback) {
                 setMovies(data.Search);
                 setError("");
             } catch (err) {
-                if (err.name !== "AbortError") {
+
+                if (err.name !== "AbortError"){
                     setError(err.message);
                 }
+
             } finally {
                 setIsLoading(false);
             }
@@ -51,15 +41,17 @@ export function useMovies(query, callback) {
         if (query.length < 3) {
             setMovies([]);
             setError("");
-            return;
+            return
         }
 
         fetchMovies();
 
         return function () {
             controller.abort();
-        };
+        }
+
     }, [query]);
 
-    return { movies, isLoading, error };
+    return {movies , isLoading , error};
+
 }
